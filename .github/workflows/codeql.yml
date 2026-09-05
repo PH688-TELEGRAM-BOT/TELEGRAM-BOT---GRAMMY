@@ -1,0 +1,193 @@
+# For most projects, this workflow file will not need changing; you simply need
+# to commit it to your repository.
+#- name: Deploy Single VM Stackstorm to AWS EC2
+  # You may pin to the exact commit or the version.
+  # uses: bitovi/github-actions-deploy-stackstorm@2afeae1d65acc53538a3c20743b62ae8160203de
+  uses: bitovi/github-actions-deploy-stackstorm@v0
+  with:
+    # Specifies if this action should checkout the code
+    checkout: # optional, default is true
+    # AWS access key ID
+    aws_access_key_id: # optional
+    # AWS secret access key
+    aws_secret_access_key: # optional
+    # AWS session token
+    aws_session_token: # optional
+    # AWS default region
+    aws_default_region: # optional
+    # Set to override the AWS resource identifier for the deployment.  Defaults to `${org}-{repo}-{branch}`.  Use with destroy to destroy specific resources.
+    aws_resource_identifier: # optional
+    # A JSON object of additional tags that will be included on created resources. Example: `{"key1": "value1", "key2": "value2"}`
+    aws_additional_tags: # optional
+    # The AWS IAM instance profile to use for the EC2 instance
+    aws_ec2_iam_instance_profile: # optional
+    # The AWS Instance type
+    aws_ec2_instance_type: # optional, default is t3.medium
+    # Define the volume size (in GiB) for the root volume on the AWS Instance.
+    aws_ec2_instance_root_vol_size: # optional, default is 10
+    # Set this to true to avoid deletion of root volume on termination. Defaults to false.
+    aws_ec2_instance_root_vol_preserve: # optional
+    # Creates a Secret in AWS secret manager to store a kypair
+    aws_ec2_create_keypair_sm: # optional
+    # Add a public IP to the instance or not. (Not an Elastic IP)
+    aws_ec2_instance_public_ip: # optional, default is true
+    # A JSON object of additional tags that will be included on created resources. Example: `{"key1": "value1", "key2": "value2"}`
+    aws_ec2_additional_tags: # optional
+    # Username used by StackStorm standalone authentication. Set as a secret in GH Actions.
+    st2_auth_username: 
+    # Password used by StackStorm standalone authentication. Set as a secret in GH Actions.
+    st2_auth_password: 
+    # Comma separated list of packs to install. If you modify this option, be sure to also include `st2` in the list.
+    st2_packs: # optional, default is st2
+    # Relative path from project root to Ansible vars file. If you'd like to adjust more advanced configuration; st2 version, st2.conf, RBAC, chatops, auth, etc. See https://github.com/stackStorm/ansible-st2#variables for the full list of settings. The Ansible vars will take higher precedence over the GHA inputs.
+    st2_ansible_extra_vars_file: # optional
+    # Stackstorm Ansible release tag to use. See https://github.com/StackStorm/ansible-st2/releases
+    st2_version_tag: # optional
+    # Set to "true" to Destroy the created AWS infrastructure for this instance
+    tf_stack_destroy: # optional, default is false
+    # Change this to be anything you want to. Carefull to be consistent here. A missing file could trigger recreation, or stepping over destruction of non-defined objects.
+    tf_state_file_name: # optional
+    # Append a string to the tf-state-file. Setting this to `unique` will generate `tf-state-aws-unique`. Can co-exist with the tf_state_file_name variable. 
+    tf_state_file_name_append: # optional
+    # AWS S3 bucket to use for Terraform state. Defaults to `${org}-${repo}-{branch}-tf-state-aws`
+    tf_state_bucket: # optional
+    # Force purge and deletion of S3 tf_state_bucket defined. Any file contained there will be destroyed. `tf_stack_destroy` must also be `true`
+    tf_state_bucket_destroy: # optional
+    # Define the root domain name for the application. e.g. bitovi.com. If empty, ELB URL will be provided.
+    aws_r53_domain_name: # optional
+    # Define the sub-domain part of the URL. Defaults to `${org}-${repo}-{branch}`
+    aws_r53_sub_domain_name: # optional
+    # Deploy to root domain. Will generate two DNS recrods, one for root, another for www
+    aws_r53_root_domain_deploy: # optional
+    # Makes the application use a certificate by enabling a certificate lookup.
+    aws_r53_enable_cert: # optional
+    # Define the certificate ARN to use for the application
+    aws_r53_cert_arn: # optional
+    # Generates and manage the root cert for the application
+    aws_r53_create_root_cert: # optional
+    # Generates and manage the sub-domain certificate for the application
+    aws_r53_create_sub_cert: # optional
+    # A JSON object of additional tags that will be included on created resources. Example: `{"key1": "value1", "key2": "value2"}`
+    aws_r53_additional_tags: # optional
+    # Define if a VPC should be created
+    aws_vpc_create: # optional
+    # Set a specific name for the VPC
+    aws_vpc_name: # optional
+    # Define Base CIDR block which is divided into subnet CIDR blocks. Defaults to 10.0.0.0/16.
+    aws_vpc_cidr_block: # optional
+    # Comma separated list of public subnets. Defaults to 10.10.110.0/24
+    aws_vpc_public_subnets: # optional
+    # Comma separated list of private subnets. If none, none will be created.
+    aws_vpc_private_subnets: # optional
+    # Comma separated list of availability zones. Defaults to `aws_default_region.
+    aws_vpc_availability_zones: # optional
+    # AWS VPC ID. Accepts `vpc-###` values.
+    aws_vpc_id: # optional
+    # Specify a Subnet to be used with the instance. If none provided, will pick one.
+    aws_vpc_subnet_id: # optional
+    # Enables NAT gateway
+    aws_vpc_enable_nat_gateway: # optional
+    # Creates only one NAT gateway
+    aws_vpc_single_nat_gateway: # optional
+    # Comma separated list of IP IDS to reuse in the NAT gateways
+    aws_vpc_external_nat_ip_ids: # optional
+    # A JSON object of additional tags that will be included on created resources. Example: `{"key1": "value1", "key2": "value2"}`
+    aws_vpc_additional_tags: # optional
+# You may wish to alter this file to override the set of languages analyzed,
+# or to provide custom queries or build logic.
+#
+# ******** NOTE ********
+# We have attempted to detect the languages in your repository. Please check
+# the `language` matrix defined below to confirm you have the correct set of
+# supported CodeQL languages.
+#
+name: "CodeQL Advanced"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: '42 7 * * 3'
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    # Runner size impacts CodeQL analysis time. To learn more, please see:
+    #   - https://gh.io/recommended-hardware-resources-for-running-codeql
+    #   - https://gh.io/supported-runners-and-hardware-resources
+    #   - https://gh.io/using-larger-runners (GitHub.com only)
+    # Consider using larger runners or machines with greater resources for possible analysis time improvements.
+    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+    permissions:
+      # required for all workflows
+      security-events: write
+
+      # required to fetch internal or private CodeQL packs
+      packages: read
+
+      # only required for workflows in private repositories
+      actions: read
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - language: actions
+          build-mode: none
+        - language: javascript-typescript
+          build-mode: none
+        # CodeQL supports the following values keywords for 'language': 'actions', 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'rust', 'swift'
+        # Use `c-cpp` to analyze code written in C, C++ or both
+        # Use 'java-kotlin' to analyze code written in Java, Kotlin or both
+        # Use 'javascript-typescript' to analyze code written in JavaScript, TypeScript or both
+        # To learn more about changing the languages that are analyzed or customizing the build mode for your analysis,
+        # see https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/customizing-your-advanced-setup-for-code-scanning.
+        # If you are analyzing a compiled language, you can modify the 'build-mode' for that language to customize how
+        # your codebase is analyzed, see https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/codeql-code-scanning-for-compiled-languages
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v7
+
+    # Add any setup steps before running the `github/codeql-action/init` action.
+    # This includes steps like installing compilers or runtimes (`actions/setup-node`
+    # or others). This is typically only required for manual builds.
+    # - name: Setup runtime (example)
+    #   uses: actions/setup-example@v1
+
+    # Initializes the CodeQL tools for scanning.
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v4
+      with:
+        languages: ${{ matrix.language }}
+        build-mode: ${{ matrix.build-mode }}
+        # If you wish to specify custom queries, you can do so here or in a config file.
+        # By default, queries listed here will override any specified in a config file.
+        # Prefix the list here with "+" to use these queries and those in the config file.
+
+        # For more details on CodeQL's query packs, refer to: https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#using-queries-in-ql-packs
+        # queries: security-extended,security-and-quality
+
+    # If the analyze step fails for one of the languages you are analyzing with
+    # "We were unable to automatically build your code", modify the matrix above
+    # to set the build mode to "manual" for that language. Then modify this step
+    # to build your code.
+    # ℹ️ Command-line programs to run using the OS shell.
+    # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
+    - name: Run manual build steps
+      if: matrix.build-mode == 'manual'
+      shell: bash
+      run: |
+        echo 'If you are using a "manual" build mode for one or more of the' \
+          'languages you are analyzing, replace this with the commands to build' \
+          'your code, for example:'
+        echo '  make bootstrap'
+        echo '  make release'
+        exit 1
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v4
+      with:
+        category: "/language:${{matrix.language}}"
