@@ -12,6 +12,9 @@ on:
             - src/
             - .github/workflows/third_party.yml
 
+permissions:
+    contents: read
+
 jobs:
     deno:
         runs-on: ubuntu-latest
